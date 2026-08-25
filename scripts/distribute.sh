@@ -38,13 +38,15 @@ fi
 if [ ! -f "$ENV_FILE" ]; then
   echo "Error: .env file not found at $ENV_FILE"
   echo ""
-  echo "Create it with:"
+  echo "Create it with at least:"
+  echo "  TAURI_SIGNING_PRIVATE_KEY=\"/absolute/path/to/kami-updater-key\""
+  echo "  TAURI_SIGNING_PRIVATE_KEY_PASSWORD=\"\"  # empty if keypair has no password"
+  echo ""
+  echo "To also produce a Developer ID signed + notarized build, add:"
   echo "  APPLE_SIGNING_IDENTITY=\"Developer ID Application: Your Name (TEAMID)\""
   echo "  APPLE_ID=\"your@apple.id\""
   echo "  APPLE_PASSWORD=\"xxxx-xxxx-xxxx-xxxx\"  # app-specific password"
   echo "  APPLE_TEAM_ID=\"XXXXXXXXXX\""
-  echo "  TAURI_SIGNING_PRIVATE_KEY=\"/absolute/path/to/kami-updater-key\""
-  echo "  TAURI_SIGNING_PRIVATE_KEY_PASSWORD=\"\"  # empty if keypair has no password"
   exit 1
 fi
 
@@ -52,14 +54,30 @@ set -a
 source "$ENV_FILE"
 set +a
 
-for var in APPLE_SIGNING_IDENTITY APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID TAURI_SIGNING_PRIVATE_KEY; do
-  if [ -z "${!var:-}" ]; then
-    echo "Error: $var is not set in .env"
-    exit 1
-  fi
+if [ -z "${TAURI_SIGNING_PRIVATE_KEY:-}" ]; then
+  echo "Error: TAURI_SIGNING_PRIVATE_KEY is not set in .env"
+  exit 1
+fi
+export TAURI_SIGNING_PRIVATE_KEY_PASSWORD="${TAURI_SIGNING_PRIVATE_KEY_PASSWORD:-}"
+
+APPLE_VARS=(APPLE_SIGNING_IDENTITY APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID)
+APPLE_VARS_SET=0
+for var in "${APPLE_VARS[@]}"; do
+  [ -n "${!var:-}" ] && APPLE_VARS_SET=$((APPLE_VARS_SET + 1))
 done
 
-export TAURI_SIGNING_PRIVATE_KEY_PASSWORD="${TAURI_SIGNING_PRIVATE_KEY_PASSWORD:-}"
+if [ "$APPLE_VARS_SET" -eq "${#APPLE_VARS[@]}" ]; then
+  APPLE_SIGNING_ENABLED=1
+  echo "Apple signing credentials found — building a Developer ID signed, notarized release."
+elif [ "$APPLE_VARS_SET" -eq 0 ]; then
+  APPLE_SIGNING_ENABLED=0
+  echo "No Apple signing credentials in .env — building an UNSIGNED release."
+  echo "Gatekeeper will warn on first launch; users must right-click > Open, or run:"
+  echo "  xattr -cr /Applications/Kami.app"
+else
+  echo "Error: partial Apple signing config in .env — set all of ${APPLE_VARS[*]}, or none of them."
+  exit 1
+fi
 
 TAURI_CONF="$ROOT_DIR/apps/desktop/src-tauri/tauri.conf.json"
 VERSION=$(python3 -c "import json; print(json.load(open('$TAURI_CONF'))['version'])")

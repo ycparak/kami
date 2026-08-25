@@ -65,7 +65,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IENENEUyMDZFQjU0REVERTIKUldUaTdVMjFiaUJPelgxa29VQmgvbGN5TXFjQU5DTFFxQXR5S0hCYVJzY2hvRHJraFh2cXh2bFcK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEE3ODExQzdGMjM3NUFBNTEKUldSUnFuVWpmeHlCcHlSaExKand0TDVTbWNndVlJY0tDRGJyTFU0b0xMWGQzM2RwNEdJTWFBQ0gK",
       "endpoints": ["https://github.com/ycparak/kami/releases/latest/download/latest.json"]
     }
   }

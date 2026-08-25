@@ -2,13 +2,33 @@
 
 How to cut a signed, notarized macOS release and publish it so the in-app updater picks it up. This is the process for an agent (or human) running locally on the maintainer's machine — releases are not built in CI.
 
+## Signed vs. unsigned releases
+
+`distribute.sh` supports two modes, chosen automatically from what's in `.env`:
+
+- **Signed + notarized** (all four `APPLE_*` vars set): the app is signed with a Developer ID
+  Application identity, submitted to Apple notarization, and stapled. Requires an active Apple
+  Developer Program membership. Users get no Gatekeeper warning.
+- **Unsigned** (no `APPLE_*` vars set): the build skips Developer ID signing and notarization
+  entirely — no Apple Developer account needed. macOS Gatekeeper will flag the app as being from
+  an unidentified developer; users must right-click → Open the first time, or run
+  `xattr -cr /Applications/Kami.app`.
+
+Setting only some of the four `APPLE_*` vars is an error — the script refuses to guess.
+
+Either mode still signs the updater artifacts (`.app.tar.gz` / `.sig`) with the Tauri updater
+keypair (`TAURI_SIGNING_PRIVATE_KEY`) — that's unrelated to Apple and always required, since
+`createUpdaterArtifacts: true` in `tauri.conf.json` needs it to produce a valid `latest.json` for
+the in-app updater.
+
 ## First Release Prerequisites
 
 Nothing has shipped under this identity yet. Before the first run of `scripts/distribute.sh`:
 
 - The GitHub repo `ycparak/kami` must exist, and this working tree must have it configured as `origin` (`git remote add origin <url>`). `distribute.sh` pushes to and tags `origin/master`.
 - `gh` must be authenticated against that repo (`gh auth status`) — the script drafts the release via `gh release create`.
-- `.env` must hold the Developer ID signing identity and notarization credentials (see Step 3).
+- `.env` must hold at least the Tauri updater signing key (see Step 3). Add the Developer ID and
+  notarization credentials too if you want a signed release instead of an unsigned one.
 
 ## Pre-flight Checks
 
@@ -55,18 +75,15 @@ Run from the repo root, passing the notes file:
 
 The script will, in order:
 
-1. Validate `.env`, signing credentials, and the notes file (must exist and be non-empty).
+1. Validate `.env` and the notes file (must exist and be non-empty). Detects signed vs. unsigned mode from which `APPLE_*` vars are present (see above).
 2. Run pre-flight git checks (on master, clean tree, fast-forward of origin, tag doesn't already exist).
 3. Push `master` to origin so the commit the release will point at is published before the build starts.
-4. Build the desktop crate in release mode (`vp exec tauri build --bundles app,dmg`).
-5. Sign `Kami.app` and the DMG with the Developer ID identity from `.env`.
-6. Submit the app to Apple notarization and wait for the result. This is the slowest step and the most likely to fail — if Apple returns anything other than `Accepted`, stop and report the notarization log to the user.
-7. Staple the notarization ticket to the app.
-8. Bundle `Kami.app.tar.gz` and produce `Kami.app.tar.gz.sig` using the Tauri updater key.
-9. Write `latest.json` with the new version, signature, and download URL pointing at `ycparak/kami`.
-10. Create a **draft** release on `ycparak/kami` via `gh release create --draft`, uploading the DMG, the updater tarball, and `latest.json`, with the drafted notes attached.
-11. Tag this repo with `v<version>` and push the tag to origin.
-12. Print the draft URL.
+4. Build the desktop crate in release mode (`vp exec tauri build --bundles app,dmg`). When Apple credentials are present, Tauri signs `Kami.app` and the DMG with the Developer ID identity, submits to Apple notarization and waits for the result, then staples the ticket — this is the slowest step and the most likely to fail; if Apple returns anything other than `Accepted`, stop and report the notarization log to the user. When they're absent, the build produces an ad-hoc-signed, non-notarized app instead.
+5. Bundle `Kami.app.tar.gz` and produce `Kami.app.tar.gz.sig` using the Tauri updater key — this happens regardless of signed/unsigned mode.
+6. Write `latest.json` with the new version, signature, and download URL pointing at `ycparak/kami`.
+7. Create a **draft** release on `ycparak/kami` via `gh release create --draft`, uploading the DMG, the updater tarball, and `latest.json`, with the drafted notes attached.
+8. Tag this repo with `v<version>` and push the tag to origin.
+9. Print the draft URL.
 
 Expect the whole script to take several minutes — most of it is the cargo release build and Apple notarization.
 
