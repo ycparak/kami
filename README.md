@@ -1,5 +1,5 @@
 <p align="center">
-![Kami](./assets/Square107x107Logo.png)
+  <img src="assets/Square107x107Logo.png" alt="Kami App Icon" width="107" height="107">
 </p>
 
 # Kami
