@@ -1,42 +1,19 @@
 {
-  "name": "ycparak",
-  "version": "1.0.0",
-  "description": "Yusuf Parak&#39;s (@ycparak) personal site and blog.",
-  "author": "Yusuf Parak",
+  "name": "kami",
+  "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "nuxt",
-    "build": "nuxt build",
-    "start": "nuxt start",
-    "generate": "nuxt generate",
-    "lint": "eslint --ext .js,.vue --ignore-path .gitignore ."
-  },
-  "dependencies": {
-    "@nuxt/content": "^1.5.3",
-    "@nuxtjs/axios": "^5.12.0",
-    "@nuxtjs/dotenv": "^1.4.0",
-    "@nuxtjs/feed": "^2.0.0",
-    "@nuxtjs/moment": "^1.6.1",
-    "@popperjs/core": "^2.4.4",
-    "nuxt": "^2.14.0",
-    "reading-time": "^1.2.0",
-    "rehype-minify-whitespace": "^4.0.4",
-    "vue-feather-icons": "^5.0.0",
-    "vue-fragment": "^1.5.1",
-    "vue-scrollto": "^2.18.2"
+    "ready": "vp fmt && vp lint && vp run test -r && vp run build -r",
+    "dev": "vp run desktop#dev",
+    "prepare": "vp config",
+    "distribute": "./scripts/distribute.sh"
   },
   "devDependencies": {
-    "@aceforth/nuxt-optimized-images": "^1.2.0",
-    "@nuxtjs/color-mode": "^1.0.2",
-    "@nuxtjs/eslint-config": "^2.0.0",
-    "@nuxtjs/eslint-module": "^1.0.0",
-    "@nuxtjs/google-analytics": "^2.4.0",
-    "@nuxtjs/style-resources": "^1.0.0",
-    "babel-eslint": "^10.0.1",
-    "eslint": "^6.1.0",
-    "eslint-plugin-nuxt": ">=0.4.2",
-    "imagemin-pngquant": "^9.0.0",
-    "node-sass": "^4.14.1",
-    "sass-loader": "^8.0.2"
-  }
+    "vite-plus": "catalog:"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "packageManager": "pnpm@11.23.0"
 }

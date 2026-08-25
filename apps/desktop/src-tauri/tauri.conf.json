@@ -1,0 +1,72 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Kami",
+  "version": "0.4.0",
+  "identifier": "com.kami",
+  "build": {
+    "beforeDevCommand": "vp dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "vp build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "macOSPrivateApi": true,
+    "windows": [
+      {
+        "title": "",
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true,
+        "trafficLightPosition": { "x": 20, "y": 29 },
+        "transparent": true,
+        "windowEffects": {
+          "effects": ["hudWindow"],
+          "state": "followsWindowActiveState"
+        },
+        "width": 1200,
+        "height": 800,
+        "minWidth": 800,
+        "minHeight": 500,
+        "visible": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-inline'; img-src 'self' data: asset: https://asset.localhost https:; style-src 'self' 'unsafe-inline'",
+      "assetProtocol": {
+        "enable": true,
+        "scope": ["**"]
+      }
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "createUpdaterArtifacts": true,
+    "macOS": {
+      "infoPlist": "Info.plist",
+      "entitlements": "./Entitlements.plist",
+      "signingIdentity": null,
+      "hardenedRuntime": true,
+      "minimumSystemVersion": "10.15"
+    },
+    "fileAssociations": [
+      {
+        "ext": ["md", "markdown"],
+        "mimeType": "text/markdown",
+        "role": "Editor"
+      }
+    ],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IENENEUyMDZFQjU0REVERTIKUldUaTdVMjFiaUJPelgxa29VQmgvbGN5TXFjQU5DTFFxQXR5S0hCYVJzY2hvRHJraFh2cXh2bFcK",
+      "endpoints": ["https://github.com/ycparak/kami/releases/latest/download/latest.json"]
+    }
+  }
+}

@@ -1,0 +1,274 @@
+.cm-mermaid-widget {
+  padding: 8px 0;
+}
+
+.cm-mermaid-canvas {
+  position: relative;
+  height: 480px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: transparent;
+  overflow: hidden;
+  outline: none;
+}
+
+.cm-mermaid-canvas:focus,
+.cm-mermaid-canvas:focus-visible,
+.cm-mermaid-fullscreen:focus,
+.cm-mermaid-fullscreen:focus-visible {
+  outline: none;
+}
+
+.cm-mermaid-canvas-viewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.cm-mermaid-canvas-editor {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 33%;
+  border-right: 1px solid var(--border-color);
+  background-color: var(--surface-card);
+  overflow: hidden;
+  display: none;
+}
+
+.cm-mermaid-canvas.is-editing .cm-mermaid-canvas-editor {
+  display: block;
+}
+
+.cm-mermaid-canvas.is-editing .cm-mermaid-canvas-viewport {
+  left: 33%;
+}
+
+.cm-mermaid-canvas-editor .cm-editor {
+  height: 100%;
+}
+.cm-mermaid-canvas-editor .cm-scroller {
+  height: 100%;
+}
+
+.cm-mermaid-canvas .cm-mermaid-canvas-editor .cm-content {
+  padding: 8px 0;
+  max-width: none;
+  margin: 0;
+  font-family: var(--pm-code-font, var(--mono-font, "SF Mono", Menlo, Monaco, Consolas, monospace));
+  font-size: 12px;
+  line-height: 1.5;
+}
+.cm-mermaid-canvas .cm-mermaid-canvas-editor .cm-line {
+  padding: 0 8px;
+}
+
+[data-theme="dark"] .cm-mermaid-canvas-editor {
+  background-color: color-mix(in srgb, black calc(var(--contrast) * 24%), transparent);
+}
+
+.cm-mermaid-canvas .cm-mermaid-canvas-editor .cm-scroller {
+  overflow: auto !important;
+  clip-path: none;
+}
+
+.cm-mermaid-canvas .cm-mermaid-canvas-editor .cm-selectionLayer {
+  clip-path: none;
+  width: auto;
+  height: auto;
+  contain: none;
+}
+
+.cm-mermaid-canvas .cm-mermaid-canvas-editor .cm-content::selection,
+.cm-mermaid-canvas .cm-mermaid-canvas-editor .cm-content ::selection,
+.cm-mermaid-canvas .cm-mermaid-canvas-editor .cm-line::selection,
+.cm-mermaid-canvas .cm-mermaid-canvas-editor .cm-line ::selection {
+  background-color: transparent !important;
+}
+
+.cm-mermaid-canvas-viewport.is-dragging {
+  cursor: grabbing;
+}
+
+.cm-mermaid-canvas-stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+}
+
+.cm-mermaid-canvas-stage svg {
+  display: block;
+  max-width: none;
+}
+
+.cm-mermaid-canvas-stage svg[data-xychart-colors] {
+  --xychart-color-1: color-mix(in srgb, var(--accent) 45%, var(--fg-base) 55%);
+  --xychart-color-2: color-mix(in srgb, var(--accent) 20%, var(--fg-base) 80%);
+  --xychart-color-3: color-mix(in srgb, var(--accent) 8%, var(--fg-base) 92%);
+  --xychart-color-4: color-mix(in srgb, var(--accent) 4%, var(--fg-base) 96%);
+  --xychart-color-5: color-mix(in srgb, var(--accent) 2%, var(--fg-base) 98%);
+  --xychart-color-6: var(--fg-base);
+  --xychart-color-7: var(--fg-base);
+}
+
+.cm-mermaid-canvas-edit,
+.cm-mermaid-canvas-zoom-btn,
+.cm-mermaid-canvas-icon-btn {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--surface-card);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font: inherit;
+  line-height: 1;
+  opacity: 0;
+  transition:
+    opacity 120ms ease-out,
+    background-color 120ms ease-out,
+    color 120ms ease-out;
+}
+
+.cm-mermaid-canvas:hover .cm-mermaid-canvas-edit,
+.cm-mermaid-canvas:focus-within .cm-mermaid-canvas-edit,
+.cm-mermaid-canvas:hover .cm-mermaid-canvas-zoom-btn,
+.cm-mermaid-canvas:focus-within .cm-mermaid-canvas-zoom-btn,
+.cm-mermaid-canvas:hover .cm-mermaid-canvas-icon-btn,
+.cm-mermaid-canvas:focus-within .cm-mermaid-canvas-icon-btn {
+  opacity: 1;
+}
+
+.cm-mermaid-canvas-edit:hover,
+.cm-mermaid-canvas-zoom-btn:hover,
+.cm-mermaid-canvas-icon-btn:hover {
+  background-color: var(--surface-subtle);
+  color: var(--text-primary);
+}
+
+.cm-mermaid-canvas-top {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+}
+
+.cm-mermaid-canvas-edit {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.cm-mermaid-canvas-edit.is-active {
+  border-color: color-mix(in srgb, var(--accent) 24%, var(--border-color));
+  background-color: color-mix(in srgb, var(--accent) 6%, var(--surface-card));
+  color: color-mix(in srgb, var(--accent) 26%, var(--text-secondary));
+}
+
+.cm-mermaid-canvas-button-icon {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2;
+  flex: none;
+}
+
+.cm-mermaid-canvas-icon-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  padding: 0;
+}
+
+.cm-mermaid-canvas-zoom {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cm-mermaid-canvas-zoom-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  padding: 0;
+}
+
+.cm-mermaid-canvas-error-msg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5em 2em;
+  color: var(--text-error, #ff6b6b);
+  font-family: var(--pm-code-font, var(--mono-font, "SF Mono", Menlo, Monaco, Consolas, monospace));
+  font-size: 0.85em;
+  text-align: center;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+.cm-mermaid-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background-color: color-mix(in srgb, var(--bg-base) 92%, transparent);
+  backdrop-filter: blur(4px);
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 180ms ease-out;
+}
+
+.cm-mermaid-fullscreen.is-open {
+  opacity: 1;
+}
+
+.cm-mermaid-fullscreen-canvas {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+  transform: scale(0.95);
+  opacity: 0;
+  transition:
+    transform 180ms ease-out,
+    opacity 180ms ease-out;
+}
+
+.cm-mermaid-fullscreen.is-open .cm-mermaid-fullscreen-canvas {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.cm-mermaid-fullscreen-canvas .cm-mermaid-canvas-top {
+  top: 16px;
+  right: 16px;
+}
+
+.cm-mermaid-fullscreen-canvas .cm-mermaid-canvas-zoom {
+  bottom: 16px;
+  right: 16px;
+}
+
+.cm-mermaid-fullscreen-canvas .cm-mermaid-canvas-icon-btn,
+.cm-mermaid-fullscreen-canvas .cm-mermaid-canvas-zoom-btn {
+  opacity: 1;
+}

@@ -1,26 +1,50 @@
-# PKMS
+<p align="center">
+![Kami](./assets/Square107x107Logo.png)
+</p>
 
-Note taking system inspired by [Andy Matuschak’s notes](https://notes.andymatuschak.org/About_these_notes), built with Vue and Nuxt.js.
+# Kami
 
-As an interface paradigm, horizontal panning seems to me to encourage ephemeral rabbit hole consumption, I think this takes advantage of that, and intuitevly feels like it holds higher end-user retentention. OTOH, I think that it possibly comes at the expense of deeper knowledge study / understanding.
+**Markdown without the noise**
+Kami is a fast, lightweight and local markdown editor built for people who value privacy and speed. It works offline, weighs under 10mb, is open source and completely free.
 
-![5](https://github.com/ycparak/pkms/assets/12952566/12a3ccfb-bb77-4f86-92c5-b179e31d5a25)
+![Kami](./assets/screenshot.png)
 
-## Use
+It's built with Tauri v2, React, Zustand, CodeMirror, and Rust. The app keeps documents on disk, respects workspace `.gitignore` rules, supports multiple windows, renders extended markdown such as tables and Mermaid diagrams, and ships with a signed macOS release flow.
+
+## Repository
+
+- `apps/desktop/` — Tauri desktop app.
+- `apps/desktop/src/` — React frontend.
+- `apps/desktop/src-tauri/src/` — Rust commands, workspace state, watcher, updater, and CLI integration.
+- `apps/website/` — landing page.
+- `docs/` — project and agent workflow docs.
+- `SPECs/` — feature specs and design notes.
+
+## Development
+
+This repo uses Vite+ through the `vp` CLI. Use `vp` instead of calling the package manager or Vite tooling directly.
 
 ```bash
-# install dependencies
-$ npm install
-
-# serve with hot reload at localhost:3000
-$ npm run dev
-
-# build for production and launch server
-$ npm run build
-$ npm run start
-
-# generate static project
-$ npm run generate
+vp install
+vp dev
 ```
 
-For detailed explanation on how things work, check out [Nuxt.js docs](https://nuxtjs.org).
+## Validation
+
+```bash
+vp check
+vp test
+```
+
+Rust validation runs from the Tauri crate:
+
+```bash
+cd apps/desktop/src-tauri
+cargo test
+cargo clippy
+cargo fmt --check
+```
+
+## Releases
+
+macOS releases are cut locally with `scripts/distribute.sh`. See `docs/releasing.md` for the signed, notarized release workflow and updater publishing details.

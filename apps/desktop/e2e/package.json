@@ -1,0 +1,18 @@
+{
+  "name": "desktop-e2e",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:app": "cd ../src-tauri && cargo tauri build --features e2e --bundles app --config '{\"identifier\":\"com.kami.e2e\",\"bundle\":{\"createUpdaterArtifacts\":false}}'",
+    "test:wdio": "wdio run ./wdio.conf.js",
+    "test:e2e": "pnpm run build:app && pnpm run test:wdio"
+  },
+  "devDependencies": {
+    "@wdio/cli": "^9.6.0",
+    "@wdio/local-runner": "^9.6.0",
+    "@wdio/mocha-framework": "^9.6.0",
+    "@wdio/spec-reporter": "^9.6.0",
+    "webdriverio": "^9.6.0"
+  }
+}

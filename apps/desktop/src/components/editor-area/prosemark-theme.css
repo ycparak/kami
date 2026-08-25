@@ -1,0 +1,189 @@
+.cm-editor {
+  --pm-header-mark-color: var(--text-muted);
+  --pm-link-color: var(--link-color);
+  --pm-muted-color: var(--text-muted);
+  --pm-code-background-color: var(--code-bg);
+  --pm-code-font: var(--mono-font, "SF Mono", Menlo, Monaco, Consolas, monospace);
+  --pm-code-btn-background-color: var(--item-hover-bg);
+  --pm-code-btn-hover-background-color: var(--item-active-bg);
+  --pm-blockquote-vertical-line-background-color: var(--blockquote-border);
+  --pm-cursor-color: var(--text-primary);
+
+  --pm-syntax-link: var(--link-color);
+  --pm-syntax-keyword: oklch(70.05% 0.217 296.83);
+  --pm-syntax-atom: oklch(65.69% 0.2 259.93);
+  --pm-syntax-literal: oklch(71.27% 0.101 169.93);
+  --pm-syntax-string: oklch(68.53% 0.164 25.1);
+  --pm-syntax-regexp: oklch(76.88% 0.16 43.42);
+  --pm-syntax-definition-variable: oklch(61.42% 0.158 259.6);
+  --pm-syntax-local-variable: oklch(75.88% 0.082 184.11);
+  --pm-syntax-type-namespace: oklch(64.51% 0.083 165.19);
+  --pm-syntax-class-name: oklch(76.14% 0.1 168.52);
+  --pm-syntax-special-variable-macro: oklch(66.67% 0.193 282.06);
+  --pm-syntax-definition-property: oklch(58.92% 0.132 259.4);
+  --pm-syntax-comment: var(--text-muted);
+  --pm-syntax-invalid: oklch(75.93% 0.182 28.91);
+}
+
+.cm-editor .cm-cursorLayer .cm-cursor,
+.cm-editor .cm-cursorLayer .cm-dropCursor {
+  border-left-color: var(--text-primary);
+}
+
+.cm-editor .cm-selectionBackground,
+.cm-editor.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground,
+.cm-editor .cm-content ::selection {
+  background-color: var(--editor-selection-bg);
+}
+
+.cm-editor {
+  height: auto;
+  outline: none;
+  color: var(--text-secondary);
+  background: transparent;
+}
+
+.cm-editor .cm-scroller {
+  overflow: visible !important;
+
+  --kami-text-col-inset: max(
+    var(--kami-editor-side-padding, 4rem),
+    calc(
+      (100% - var(--kami-editor-outer-width, calc(734px + 4rem + 4rem))) / 2 +
+        var(--kami-editor-side-padding, 4rem)
+    )
+  );
+  clip-path: inset(
+    0 var(--kami-text-col-inset) 0
+      max(0px, calc(var(--kami-text-col-inset) - var(--kami-editor-side-padding, 4rem)))
+  );
+}
+
+.cm-editor .cm-selectionLayer {
+  width: 100%;
+  height: 100%;
+  contain: layout paint;
+  clip-path: inset(0 var(--kami-text-col-inset));
+}
+
+.cm-editor .cm-content {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--kami-editor-outer-width, calc(734px + 4rem + 4rem));
+  margin: 0 auto;
+  padding: 0 var(--kami-editor-side-padding, 4rem) 40vh;
+  font-family: var(
+    --kami-editor-font-family,
+    -apple-system-body,
+    ui-sans-serif,
+    -apple-system,
+    system-ui,
+    "Segoe UI",
+    Helvetica,
+    "Apple Color Emoji",
+    Arial,
+    sans-serif,
+    "Segoe UI Emoji",
+    "Segoe UI Symbol"
+  );
+  font-size: var(--kami-editor-font-size, 16px);
+  line-height: var(--kami-editor-line-height, 1.8);
+  letter-spacing: var(--kami-editor-letter-spacing, -0.03em);
+  color: var(--text-secondary);
+}
+
+.cm-editor .cm-line,
+.ͼp .cm-horizontal-rule-container {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.cm-line.cm-blockquote-line::before {
+  inset-inline-start: 0;
+}
+.cm-editor .cm-fenced-code-line {
+  margin-left: 0;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.cm-editor .cm-line:has(> br:only-child) {
+  line-height: 1;
+}
+
+.cm-editor .cm-blockquote-line {
+  padding-inline-start: 1em;
+}
+
+.cm-editor .cm-panels,
+.cm-editor .cm-panels-top,
+.cm-editor .cm-panels-bottom {
+  display: none !important;
+}
+
+.cm-editor .cm-gutters {
+  display: none;
+}
+
+.cm-editor .cm-code-block-lang-container {
+  display: none;
+}
+
+.cm-editor .cm-code-block-copy-button {
+  display: none;
+}
+
+.cm-editor .cm-list-prefix-task {
+  cursor: pointer;
+}
+
+.cm-editor .cm-list-prefix-task::before {
+  content: "";
+  inset-inline-start: calc(var(--cm-list-marker-offset) + (var(--cm-list-marker-width) - 28px) / 2);
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  transform: translateY(-50%);
+  border: 1.5px solid var(--text-muted);
+  border-radius: 5px;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s;
+}
+
+.cm-editor .cm-list-prefix-task-checked::before {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 12.5L10.5 15L16 9'/%3E%3C/svg%3E");
+  background-size: 20px 20px;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.cm-editor .cm-markdown-heading {
+  padding-top: 1rem;
+}
+
+.cm-editor .cm-heading-line {
+  position: relative;
+}
+
+.cm-editor .cm-heading-hash {
+  position: absolute;
+  right: 100%;
+  padding-right: 0.4em;
+  color: var(--text-muted);
+  white-space: pre;
+  pointer-events: auto;
+  font-size: inherit !important;
+}
+
+.cm-editor .cm-heading-hash .cm-hidden-token {
+  font-size: inherit !important;
+  opacity: 0;
+}
+
+.cm-editor .cm-tooltip.cm-tooltip-autocomplete > ul,
+.cm-editor .cm-tooltip.cm-tooltip-autocomplete > ul > li {
+  font-family: var(--ui-font);
+}

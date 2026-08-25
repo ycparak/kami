@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "website",
+      "runtimeExecutable": "vp",
+      "runtimeArgs": ["run", "--filter", "website", "dev"],
+      "port": 5173
+    }
+  ]
+}

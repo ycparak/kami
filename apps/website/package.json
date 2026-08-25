@@ -1,0 +1,27 @@
+{
+  "name": "website",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vp exec vite dev",
+    "build": "vp exec vite build && vp exec tsc --noEmit && vp exec tsc -p tsconfig.node.json --noEmit",
+    "preview": "vp exec vite preview"
+  },
+  "dependencies": {
+    "@tanstack/react-router": "^1.170.13",
+    "@tanstack/react-start": "^1.168.22",
+    "motion": "catalog:",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@tanstack/devtools-vite": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.6.0",
+    "typescript": "~5.8.3",
+    "vite": "npm:vite@^8.0.16"
+  }
+}

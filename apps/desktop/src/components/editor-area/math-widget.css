@@ -1,0 +1,15 @@
+.cm-math-widget {
+  cursor: pointer;
+}
+
+.cm-math-widget .katex-display {
+  margin: 0.5em 0;
+}
+
+.cm-math-error {
+  font-family: var(--pm-code-font, ui-monospace, SFMono-Regular, Menlo, monospace);
+  color: var(--pm-syntax-invalid, oklch(64.62% 0.203 29.2));
+  background-color: var(--pm-code-background-color);
+  border-radius: 0.4rem;
+  padding: 0.1rem 0.3rem;
+}
