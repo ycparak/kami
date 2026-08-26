@@ -4,7 +4,53 @@
 
 -
 
+## Up Next
+
+- **`window-inactive` e2e is focus-race sensitive.** Passes in isolation; can still fail
+  inside a full suite run on `icon and label must match` / `colour returns on refocus`.
+  It drives real macOS activation with `osascript`, and `activateAndWait` now blocks on
+  both `document.hasFocus()` and `data-window-inactive` instead of a fixed pause — but
+  nothing in the test can stop another process taking focus between that wait and the
+  colour sample. Needs either a way to assert the attribute without real activation, or
+  acceptance that it is only meaningful on an idle machine.
+
+- **`latex-math` e2e: clicking a math widget does not unfold it.** Left failing on
+  purpose rather than contorted into passing. `selectAllDecorationsOnSelectExtension`
+  ("cm-math-widget") is wired and `eventHandlersWithClass` matches via `composedPath`, so
+  the mousedown handler does fire; its guard only acts on a collapsed caret
+  (`fold/core.ts:112`). In columns mode the seeded document is not the first pane, so its
+  pane starts unfocused and `unfurlSuppressFacet` renders it folded. Focusing the pane
+  first, clicking twice, and polling for up to 5s all failed to unfold it reliably — one
+  instrumented run passed, later identical runs did not. Needs a decision on the intended
+  UX (should one click on an unfocused pane's widget both focus and unfold?) before either
+  the spec or `math-decorations.ts` is changed.
+
 ## Done
+
+- **E2E suite: made runnable again and de-flaked.** The bundled `Kami.app` was the 0.1.0
+  release build with no embedded WebDriver server, so all 14 specs died at
+  `POST /session` before running an assertion; rebuilt with `--features e2e`. Then fixed
+  four real failures: cross-run state pollution (`empty-state` and `window-inactive` seed
+  an empty `sessions.json`, and `window-inactive` collapses the sidebar — neither restored
+  it, breaking whichever spec ran first next time), `column-panes` bootstrapping panes with
+  `Cmd-T` from an empty session where it is inert, `pane-scroll` picking a collapsed pane
+  as "already visible" when `useScrollFocusedPaneIntoView` still scrolls those back to
+  their natural position, and `window-inactive` racing Tauri's focus event with a fixed
+  pause. Extracted `helpers/workspace.js` so the setup steps have one owner.
+
+- **Command palette keyboard navigation.** Arrow keys sometimes failed to move
+  the highlight, and the list scrolled erratically. Root cause: WebKit fires a
+  synthetic `mousemove` at the last cursor position after a scroll, and cmdk
+  selects on `onPointerMove` — so every keyboard-driven scroll handed the
+  selection to whatever row the resting pointer covered. Reproduced against
+  real cmdk in a browser harness (five clean steps, then a snap back to the
+  hovered row — matching the recording frame for frame) and re-run to confirm
+  the fix. Suppressed with a capture-phase `pointermove` filter on
+  `[cmdk-list]` that only lets an event through once the cursor coordinates
+  actually change. Also: selection now resets on open and re-anchors when its
+  item leaves the list, `useFuzzySearch` cancels in-flight requests so stale
+  results cannot overwrite newer ones, and the path highlighter emits one span
+  per run instead of one per character.
 
 - **Command palette keyboard navigation.** Arrow keys stalled and the list
   scroll jumped: `cmdk` selects on hover, and WKWebView answers a scroll with a

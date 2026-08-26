@@ -1,5 +1,6 @@
 import { ok, strictEqual } from "node:assert/strict";
 import { openCommandPalette } from "../helpers/command-palette.js";
+import { ensureWorkspace } from "../helpers/workspace.js";
 
 const PALETTE_ITEM = "[cmdk-item]";
 
@@ -83,6 +84,10 @@ async function closePalette() {
 }
 
 describe("command palette keyboard navigation", () => {
+  before(async function () {
+    await ensureWorkspace();
+  });
+
   afterEach(async () => {
     if ((await $$(PALETTE_ITEM)).length > 0) await closePalette();
   });

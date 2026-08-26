@@ -95,3 +95,33 @@ bundle identifier (see below).
   `pnpm run test:e2e` which chains them).
 - **Test hangs at `waitForDisplayed`** — the WKWebView likely did not load.
   Sanity-check that `vp run desktop#dev` still launches the app normally.
+
+## Shared setup helpers
+
+`helpers/workspace.js` owns the "get the app into a usable state" steps that most specs
+need. Prefer it over a per-spec copy:
+
+- `invoke(cmd, args)` — call a Tauri command and throw on failure.
+- `waitForMount()` — wait for the sidebar toggle. Matches **both** `Hide sidebar` and
+  `Show sidebar`: the sidebar's collapsed state is persisted, so a spec that keys off one
+  label breaks as soon as another spec leaves it the other way.
+- `ensureWorkspace()` — the toggle also renders in the empty state, so its presence does
+  **not** mean a workspace is open. This opens one (`open_workspace` is idempotent) and
+  waits for the file tree.
+- `ensureOneOpenFile()` — `Cmd-T` is inert while no tab is open, so panes cannot be
+  bootstrapped by keyboard from an empty session. Opens one file first.
+- `closeAllTabs()` — reset the tab list through the palette's **Close All Tabs** command.
+
+## Match tree paths exactly
+
+`[data-tree-path$="/README.md"]` also matches `apps/desktop/e2e/README.md`, so a suffix
+match opens whichever row the tree happens to render first. Build the selector from
+`E2E_WORKSPACE` and compare the full path.
+
+## Specs must restore persisted state
+
+The app profile (`com.kami.e2e`) survives between runs, so anything a spec persists leaks
+into whichever spec runs first next time — including into the _next_ run of the suite.
+`empty-state` and `window-inactive` both seed an empty `sessions.json`, and
+`window-inactive` also collapses the sidebar; both save and restore what they found in an
+`after` hook. Do the same for any new spec that writes persisted state.

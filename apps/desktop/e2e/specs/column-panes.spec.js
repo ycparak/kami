@@ -1,28 +1,8 @@
 import { ok, strictEqual } from "node:assert/strict";
 import { writeFileSync } from "node:fs";
+import { closeAllTabs, ensureOneOpenFile, invoke, waitForMount } from "../helpers/workspace.js";
 
 const SHOT = process.env.SHOT_OUT ?? "/tmp/columns.png";
-
-async function invoke(cmd, args) {
-  const result = await browser.executeAsync(
-    (cmdName, cmdArgs, done) => {
-      window.__TAURI_INTERNALS__
-        .invoke(cmdName, cmdArgs)
-        .then((value) => done({ ok: true, value }))
-        .catch((error) =>
-          done({ ok: false, error: error && error.message ? error.message : String(error) }),
-        );
-    },
-    cmd,
-    args,
-  );
-  if (!result.ok) throw new Error(`${cmd} failed: ${result.error}`);
-  return result.value;
-}
-
-async function waitForMount() {
-  await $('button[aria-label="Hide sidebar"]').waitForExist({ timeout: 15_000 });
-}
 
 async function pressNewTab() {
   await browser.execute(() => {
@@ -68,13 +48,25 @@ async function paneReport() {
 
 describe("columns layout", function () {
   before(async function () {
-    await waitForMount();
+    await ensureOneOpenFile();
     await invoke("reset_setting", { key: "appearance.column-layout", scope: "global" });
     await invoke("reset_setting", { key: "appearance.pane-width", scope: "global" });
     await browser.refresh();
     await waitForMount();
     await browser.pause(2_000);
+    await ensureOneOpenFile();
     await ensurePanes(3);
+    // Opening tabs focuses the newest pane and scrolls the row right, which collapses the
+    // earlier panes onto a shared left edge. Start from the row's origin so the geometry
+    // assertions see every pane at its natural position.
+    await browser.execute(() => {
+      document.querySelector("[data-pane-row]")?.scrollTo({ left: 0, behavior: "auto" });
+    });
+    await browser.pause(600);
+  });
+
+  after(async function () {
+    await closeAllTabs();
   });
 
   it("lays every open tab out as a column in one scrollable row", async function () {

@@ -1,5 +1,5 @@
 import { ok, strictEqual } from "node:assert/strict";
-import { writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -67,10 +67,18 @@ function readEmptyState() {
 }
 
 describe("empty-state wallpaper", () => {
+  let savedSession = null;
+
   before(async () => {
+    savedSession = existsSync(SESSION_FILE) ? readFileSync(SESSION_FILE, "utf8") : null;
     seedEmptySession();
     await waitForMount();
     await reload();
+  });
+
+  // The seeded empty session is persisted, so restore whatever was there before.
+  after(() => {
+    if (savedSession !== null) writeFileSync(SESSION_FILE, savedSession);
   });
 
   it("hides the whole tab strip", async () => {
