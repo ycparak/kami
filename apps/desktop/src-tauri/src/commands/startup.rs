@@ -19,6 +19,19 @@ pub struct StartupState {
     pub recent_workspaces: Vec<String>,
     pub restore_bundle: Option<RestoreWorkspaceResponse>,
     pub standalone_file: Option<FileContent>,
+    pub dev_wallpaper: Option<String>,
+}
+
+/// The `--wallpaper <id>` dev launch flag (see `crate::dev_arg`). `None` in release builds.
+fn dev_wallpaper() -> Option<String> {
+    #[cfg(debug_assertions)]
+    {
+        crate::dev_arg("--wallpaper")
+    }
+    #[cfg(not(debug_assertions))]
+    {
+        None
+    }
 }
 
 #[tauri::command]
@@ -71,6 +84,7 @@ pub async fn get_startup_state(
                     recent_workspaces,
                     restore_bundle: None,
                     standalone_file,
+                    dev_wallpaper: dev_wallpaper(),
                 });
             }
         }
@@ -114,5 +128,6 @@ pub async fn get_startup_state(
         recent_workspaces,
         restore_bundle,
         standalone_file: None,
+        dev_wallpaper: dev_wallpaper(),
     })
 }

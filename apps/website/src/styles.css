@@ -248,7 +248,8 @@ a:hover {
   opacity: 1;
 }
 
-.carousel-slide video {
+.carousel-slide video,
+.carousel-slide img {
   width: 100%;
   max-width: 1024px;
   margin: 0 auto;

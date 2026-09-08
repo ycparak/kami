@@ -175,20 +175,25 @@ fn build_secondary_window(app: &tauri::AppHandle, label: String) -> Result<(), A
     Ok(())
 }
 
-/// Reads `--w <width> --h <height>` from the process args, passed through via
-/// `vp run desktop#dev --w <width> --h <height>` (forwarded to the app binary by
+/// Reads the value following `flag` in the process args, passed through via
+/// `vp run desktop#dev --<flag> <value>` (forwarded to the app binary by
 /// `tauri dev -- -- ...`). Dev-only, so it's compiled out of release builds.
+///
+/// Currently used for `--w`/`--h` (window size, see `dev_window_size_override`) and
+/// `--wallpaper` (splash wallpaper override, see `commands::startup::dev_wallpaper`).
+#[cfg(debug_assertions)]
+pub(crate) fn dev_arg(flag: &str) -> Option<String> {
+    let args: Vec<String> = std::env::args().collect();
+    args.iter()
+        .position(|a| a == flag)
+        .and_then(|i| args.get(i + 1))
+        .cloned()
+}
+
 #[cfg(debug_assertions)]
 fn dev_window_size_override() -> Option<LogicalSize<f64>> {
-    let args: Vec<String> = std::env::args().collect();
-    let value_after = |flag: &str| -> Option<f64> {
-        args.iter()
-            .position(|a| a == flag)
-            .and_then(|i| args.get(i + 1))
-            .and_then(|v| v.parse::<f64>().ok())
-    };
-    let width = value_after("--w")?;
-    let height = value_after("--h")?;
+    let width = dev_arg("--w")?.parse().ok()?;
+    let height = dev_arg("--h")?.parse().ok()?;
     Some(LogicalSize::new(width, height))
 }
 

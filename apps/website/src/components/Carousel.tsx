@@ -13,6 +13,7 @@ export type CarouselSlide = {
   src: string;
   tab: string;
   description: string;
+  type?: "video" | "image";
 };
 
 type CarouselProps = {
@@ -649,17 +650,21 @@ export function Carousel({ slides, label = "Kami product demos" }: CarouselProps
               aria-label={`${index + 1} of ${slides.length}: ${slide.tab}`}
               aria-hidden={index !== activeIndex}
             >
-              <video
-                ref={(el) => {
-                  dom.current.videos[index] = el;
-                }}
-                src={slide.src}
-                aria-label={slide.tab}
-                autoPlay={index === 0}
-                loop
-                muted
-                playsInline
-              />
+              {slide.type === "image" ? (
+                <img src={slide.src} alt={slide.tab} draggable={false} />
+              ) : (
+                <video
+                  ref={(el) => {
+                    dom.current.videos[index] = el;
+                  }}
+                  src={slide.src}
+                  aria-label={slide.tab}
+                  autoPlay={index === 0}
+                  loop
+                  muted
+                  playsInline
+                />
+              )}
             </div>
           ))}
         </div>

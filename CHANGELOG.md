@@ -4,6 +4,13 @@ User-visible changes, newest first.
 
 ## Unreleased
 
+### Changed
+
+- **Empty-state wallpaper cycles daily.** The full-bleed photograph behind an
+  empty workspace now changes once a day instead of being re-randomized every
+  time the empty state appears — it advances through all nine wallpapers in
+  order, one per calendar day.
+
 ### Fixed
 
 - **Command palette keyboard navigation.** Arrow keys now move the highlight

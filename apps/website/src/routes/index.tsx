@@ -2,31 +2,44 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Carousel, type CarouselSlide } from "../components/Carousel";
 import { AppleGlyph } from "../components/Icons";
 
-const DEMO_TABS = [
-  "Fast & Private",
-  "Column Support",
-  "Search",
-  "Extended Markdown",
-  "Frontmatter",
-  "Workspaces",
-  "Customisable",
+const SLIDES: CarouselSlide[] = [
+  {
+    tab: "Fast & Private",
+    description: "All your documents live on your computer",
+    src: "/demo/01.mp4",
+  },
+  {
+    tab: "Column Support",
+    description: "Open notes side by side in one scrollable row",
+    src: "/demo/02.mp4",
+  },
+  {
+    tab: "Search",
+    description: "Find any note in your workspace instantly",
+    src: "/demo/03.mp4",
+  },
+  {
+    tab: "Extended Markdown",
+    description: "Mermaid charts, LaTeX, tables and HTML rendered beautifully",
+    src: "/demo/04.mp4",
+  },
+  {
+    tab: "Frontmatter",
+    description: "YAML metadata support built-in",
+    src: "/demo/05.mp4",
+  },
+  {
+    tab: "Workspaces",
+    description: "Switch between multiple workspaces",
+    src: "/videos/06.webp",
+    type: "image",
+  },
+  {
+    tab: "Customisable",
+    description: "Customise the look and feel of your workspace",
+    src: "/demo/07.mp4",
+  },
 ];
-
-const DEMO_DESCRIPTIONS = [
-  "All your documents live on your computer",
-  "Open notes side by side in one scrollable row",
-  "Find any note in your workspace instantly",
-  "Mermaid charts, LaTeX, tables and HTML rendered beautifully",
-  "YAML metadata support built-in",
-  "Switch between multiple workspaces",
-  "Customise the look and feel of your workspace",
-];
-
-const SLIDES: CarouselSlide[] = DEMO_TABS.map((tab, index) => ({
-  src: "/videos/01.mp4",
-  tab,
-  description: DEMO_DESCRIPTIONS[index],
-}));
 
 export const Route = createFileRoute("/")({
   component: HomePage,

@@ -7,6 +7,7 @@ import { mark } from "@/lib/startup-metrics";
 import type { PendingOpenPayload } from "@/lib/tauri";
 import type { FileContent } from "@/types/fs";
 import * as tauri from "@/lib/tauri";
+import { setDevWallpaperOverride } from "@/components/editor-area/wallpapers";
 
 export async function openStandaloneFile(path: string, prefetched: FileContent | null = null) {
   useWorkspaceStore.getState().setChromeMode("compact-file");
@@ -115,6 +116,8 @@ async function resolveStartup() {
     useWorkspaceStore.setState({
       recentWorkspaces: startup.recent_workspaces,
     });
+
+    setDevWallpaperOverride(startup.dev_wallpaper);
 
     if (startup.standalone_file) {
       await openStandaloneFile(startup.standalone_file.path, startup.standalone_file);

@@ -27,6 +27,21 @@
 
 ## Done
 
+- **Daily wallpaper cycling + `--wallpaper` dev flag.** The empty-state
+  wallpaper (`wallpapers.ts`) no longer re-rolls at random on every mount —
+  `dailyWallpaper()` indexes into the registry by local calendar day, so it
+  only changes once a day, cycling through all nine in order. Added
+  `vp run desktop#dev --wallpaper <id>` to force a specific one during
+  development, following the same argv-passthrough pattern as the existing
+  `--w`/`--h` window-size flags: `dev_arg()` (extracted from
+  `dev_window_size_override` in `lib.rs`) reads it from process args
+  (debug-only), it rides on `StartupState.dev_wallpaper` to the frontend, and
+  `resolveStartup` applies it via `setDevWallpaperOverride()` before the
+  window is shown. Verified live: `empty-state.spec.js`'s wallpaper assertion
+  still passes against the new picker (build + e2e run), and `cargo
+build`/`cargo clippy`/`vp check` are all clean.
+  Spec: [SPECs/empty-state-wallpaper.md](./SPECs/empty-state-wallpaper.md)
+
 - **E2E suite: made runnable again and de-flaked.** The bundled `Kami.app` was the 0.1.0
   release build with no embedded WebDriver server, so all 14 specs died at
   `POST /session` before running an assertion; rebuilt with `--features e2e`. Then fixed
