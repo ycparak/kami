@@ -41,7 +41,9 @@ async function invoke(cmd, args) {
 }
 
 async function waitForMount() {
-  await $('button[aria-label="Hide sidebar"]').waitForExist({ timeout: 15_000 });
+  await $('button[aria-label="Hide sidebar"], button[aria-label="Show sidebar"]').waitForExist({
+    timeout: 15_000,
+  });
 }
 
 async function rowState() {
@@ -58,6 +60,7 @@ async function rowState() {
         const r = p.getBoundingClientRect();
         return {
           id: p.getAttribute("data-pane-id"),
+          collapsed: p.dataset.collapsed === "true",
           fullyVisible: r.left >= rowRect.left - 1 && r.right <= rowRect.right + 1,
         };
       }),
@@ -114,8 +117,10 @@ describe("focused pane scrolling", function () {
 
   it("does not scroll when the focused pane is already visible", async function () {
     const before = await rowState();
-    const visibleIndex = before.panes.findIndex((p) => p.fullyVisible);
-    ok(visibleIndex !== -1, "expected at least one fully visible pane");
+    // Collapsed panes stack at the left edge, so their rect sits inside the row while
+    // useScrollFocusedPaneIntoView still scrolls them back to their natural position.
+    const visibleIndex = before.panes.findIndex((p) => p.fullyVisible && !p.collapsed);
+    ok(visibleIndex !== -1, "expected at least one fully visible, uncollapsed pane");
 
     await clickTab(visibleIndex);
 

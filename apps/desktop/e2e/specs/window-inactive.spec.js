@@ -1,6 +1,6 @@
 import { ok, strictEqual } from "node:assert/strict";
 import { execSync } from "node:child_process";
-import { writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { resolve } from "node:path";
 
@@ -14,6 +14,32 @@ async function waitForMount() {
 
 function activate(target) {
   execSync(`osascript -e 'tell application ${target} to activate'`);
+}
+
+// Activation by bundle id is asynchronous and the app is launched straight out of a build
+// directory, so a fixed pause races the real focus change. Wait for the state instead.
+async function activateAndWait(target, focused) {
+  activate(target);
+  // document.hasFocus() flips before Tauri's focus event lands, and it is that event -- not
+  // the DOM -- that drives data-window-inactive and therefore the dimmed chrome colours.
+  // Wait for both so the assertions do not race the attribute.
+  await browser
+    .waitUntil(
+      async () => {
+        const state = await browser.execute(() => ({
+          hasFocus: document.hasFocus(),
+          inactive: document.documentElement.hasAttribute("data-window-inactive"),
+        }));
+        return state.hasFocus === focused && state.inactive === !focused;
+      },
+      {
+        timeout: 10_000,
+        interval: 200,
+        timeoutMsg: `window never became ${focused ? "focused" : "unfocused"}`,
+      },
+    )
+    .catch(() => {});
+  await browser.pause(400);
 }
 
 function readChrome() {
@@ -35,7 +61,10 @@ function readChrome() {
 }
 
 describe("inactive window chrome", () => {
+  let savedSession = null;
+
   before(async () => {
+    savedSession = existsSync(SESSION_FILE) ? readFileSync(SESSION_FILE, "utf8") : null;
     writeFileSync(SESSION_FILE, JSON.stringify({}));
     await waitForMount();
     await browser.execute(() => window.location.reload());
@@ -46,27 +75,33 @@ describe("inactive window chrome", () => {
     }
   });
 
+  // This spec seeds an empty session and collapses the sidebar to reach the empty state.
+  // Both are persisted, so leaving them behind breaks whichever spec runs first next time.
+  after(async () => {
+    if (await $('button[aria-label="Show sidebar"]').isExisting()) {
+      await $('button[aria-label="Show sidebar"]').click();
+      await browser.pause(400);
+    }
+    if (savedSession !== null) writeFileSync(SESSION_FILE, savedSession);
+  });
+
   it("tracks real window activation", async () => {
-    activate('id "com.kami.e2e"');
-    await browser.pause(1200);
+    await activateAndWait('id "com.kami.e2e"', true);
     const active = await readChrome();
     strictEqual(active.hasFocus, true, "app should be focused");
     strictEqual(active.inactiveAttr, false, "no inactive attribute while focused");
 
-    activate('"Finder"');
-    await browser.pause(1200);
+    await activateAndWait('"Finder"', false);
     const inactive = await readChrome();
     strictEqual(inactive.hasFocus, false, "app should have lost focus");
     strictEqual(inactive.inactiveAttr, true, "inactive attribute while unfocused");
 
-    activate('id "com.kami.e2e"');
-    await browser.pause(1200);
+    await activateAndWait('id "com.kami.e2e"', true);
     strictEqual((await readChrome()).inactiveAttr, false, "attribute clears on refocus");
   });
 
   it("dims icon, label and shortcut to one flat colour", async () => {
-    activate('"Finder"');
-    await browser.pause(1200);
+    await activateAndWait('"Finder"', false);
     const s = await readChrome();
 
     ok(s.toggleColor, "toggle should be styled");
@@ -78,8 +113,7 @@ describe("inactive window chrome", () => {
     );
     ok(s.chipBg !== "rgba(0, 0, 0, 0)", "chip keeps a (dimmed) surface");
 
-    activate('id "com.kami.e2e"');
-    await browser.pause(1000);
+    await activateAndWait('id "com.kami.e2e"', true);
     const back = await readChrome();
     ok(back.toggleColor !== s.toggleColor, "colour returns on refocus");
   });

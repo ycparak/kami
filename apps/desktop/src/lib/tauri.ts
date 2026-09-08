@@ -203,6 +203,7 @@ export interface StartupState {
   recent_workspaces: string[];
   restore_bundle: RestoreWorkspaceResponse | null;
   standalone_file: FileContent | null;
+  dev_wallpaper: string | null;
 }
 
 export function getStartupState(): Promise<StartupState> {

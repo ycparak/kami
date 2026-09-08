@@ -12,6 +12,17 @@ const DESCRIPTION =
 const OG_DESCRIPTION =
   "A free, fast and lightweight markdown editor for people who value privacy and speed.";
 
+const NO_JS_REVEAL_OVERRIDE = `
+  .hero .reveal,
+  .prototype-bg,
+  .carousel-viewport,
+  .carousel-tabs,
+  .carousel-descriptions {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+`;
+
 export const Route = createRootRoute({
   head: () => ({
     meta: [
@@ -49,6 +60,11 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
     <html lang="en">
       <head>
         <HeadContent />
+        {/* Entrance-animated elements start hidden (see styles.css); this
+            restores them for clients that never run the reveal script. */}
+        <noscript>
+          <style>{NO_JS_REVEAL_OVERRIDE}</style>
+        </noscript>
       </head>
       <body>
         {children}

@@ -167,6 +167,11 @@ a:hover {
   margin-top: 36px;
 }
 
+.hero .reveal {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
 .download {
   gap: 8px;
   background: rgba(0, 0, 0, 0.03);
@@ -192,6 +197,14 @@ a:hover {
   margin-top: -132px;
   padding: 276px 0 44px 0;
   margin-bottom: 144px;
+}
+
+.prototype-bg {
+  background: url(/images/bg.webp) center / cover no-repeat;
+  inset: 0;
+  opacity: 0;
+  position: absolute;
+  z-index: 0;
 }
 
 .prototype::before {
@@ -222,6 +235,7 @@ a:hover {
   outline: none;
   user-select: none;
   touch-action: pan-y pinch-zoom;
+  opacity: 0;
 }
 
 .carousel-viewport.is-dragging {
@@ -248,11 +262,13 @@ a:hover {
   opacity: 1;
 }
 
-.carousel-slide video {
+.carousel-slide video,
+.carousel-slide img {
   width: 100%;
   max-width: 1024px;
+  aspect-ratio: 1.774 / 1;
   margin: 0 auto;
-  border-radius: 8px;
+  border-radius: 14px;
   box-shadow:
     0 0 30px 10px #1b35411f,
     0 0 2px 2px #0e111700;
@@ -276,6 +292,7 @@ a:hover {
   transform: translateX(0);
   will-change: transform;
   visibility: hidden;
+  opacity: 0;
 }
 
 .carousel-tab {
@@ -309,6 +326,7 @@ a:hover {
   display: grid;
   justify-items: center;
   margin-top: 20px;
+  opacity: 0;
 }
 
 .carousel-description {
@@ -319,10 +337,6 @@ a:hover {
   text-align: center;
   text-wrap: balance;
   opacity: 0;
-}
-
-.carousel-description:first-of-type {
-  opacity: 1;
 }
 
 .carousel-status {

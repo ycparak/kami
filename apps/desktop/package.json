@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tauri dev",
+    "dev": "tauri dev -- --",
     "build": "vp exec tsc && vp build",
     "preview": "vp preview",
     "tauri": "tauri"

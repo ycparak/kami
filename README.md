@@ -8,9 +8,7 @@
 
 Kami is a fast, lightweight and local markdown editor built for people who value privacy and speed. It works offline, weighs under 10mb, is open source and completely free.
 
-
 ![Kami](./assets/screenshot.png)
-
 
 It's built with Tauri v2, React, Zustand, CodeMirror, and Rust. The app keeps documents on disk, respects workspace `.gitignore` rules, supports multiple windows, renders extended markdown such as tables and Mermaid diagrams, and ships with a signed macOS release flow.
 

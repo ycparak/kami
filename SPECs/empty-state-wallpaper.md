@@ -31,15 +31,31 @@ leaves the pane row untouched (the strip never occupied layout space).
 The window drag region and the sidebar toggle stay — the window must still be
 movable and the sidebar still reachable.
 
-## 2. Random wallpaper
+## 2. Daily wallpaper
 
 Nine images live in `apps/desktop/public/wallpapers/` (`1.webp` … `9.webp`),
 served from the Vite public root at `/wallpapers/<n>.webp`.
 
-One is picked at random each time the state mounts. The launcher page kind is
-not `keepAlive`, so it unmounts when it stops being active — mounting is
-exactly "the state became active", which is also when the entrance animation
-should run. Both therefore key off the same mount, with no effect or watcher.
+The wallpaper is chosen deterministically from the local calendar date —
+`dailyWallpaper()` in `wallpapers.ts` indexes into the registry by the number
+of days since the epoch (computed from local Y/M/D, so it advances at local
+midnight regardless of timezone), cycling through all nine in order and
+wrapping back to the first. It is **not** re-picked on every mount; it only
+changes once a day. The launcher page kind is not `keepAlive`, so it unmounts
+when it stops being active — mounting is exactly "the state became active",
+which is also when the entrance animation should run. The entrance animation
+therefore still keys off mount, with no effect or watcher; only the wallpaper
+choice itself moved from per-mount randomness to per-day determinism.
+
+For development, `vp run desktop#dev --wallpaper <id>` forces a specific
+wallpaper regardless of date. The flag reaches the frontend the same way
+`--w`/`--h` (window size) do: `tauri dev -- --` forwards it through to the
+app binary's argv, `dev_arg("--wallpaper")` in `src-tauri/src/lib.rs` reads
+it (compiled out via `#[cfg(debug_assertions)]` in release builds), it rides
+along on `StartupState.dev_wallpaper` (`commands/startup.rs`) to
+`getStartupState()`, and `resolveStartup` (`use-open-drop.ts`) calls
+`setDevWallpaperOverride()` before the window is shown, so `dailyWallpaper()`
+picks it up with no extra render.
 
 Each wallpaper carries its own scrim, all of the form:
 
@@ -175,8 +191,17 @@ separate `translate` property, not `transform`.
 
 ## Files
 
-- `apps/desktop/src/components/editor-area/wallpapers.ts` — new. Registry of
-  wallpaper source + scrim top stop; random picker.
+- `apps/desktop/src/components/editor-area/wallpapers.ts` — registry of
+  wallpaper source + scrim top stop; `dailyWallpaper()` picker (cycles daily
+  by local calendar date) and `setDevWallpaperOverride()` for the dev flag.
+- `apps/desktop/src/hooks/use-open-drop.ts` — `resolveStartup` calls
+  `setDevWallpaperOverride(startup.dev_wallpaper)` before showing the window.
+- `apps/desktop/src/lib/tauri.ts` — `StartupState.dev_wallpaper`.
+- `apps/desktop/src-tauri/src/lib.rs` — `dev_arg()`, the shared `--<flag>
+<value>` process-args reader used by both `--w`/`--h` and `--wallpaper`.
+- `apps/desktop/src-tauri/src/commands/startup.rs` —
+  `StartupState.dev_wallpaper`, populated from `dev_arg("--wallpaper")` in
+  debug builds only.
 - `apps/desktop/src/hooks/use-empty-workspace.ts` — new. `useIsEmptyWorkspace()`.
 - `apps/desktop/src/components/editor-area/new-tab-page.tsx` — wallpaper and
   scrim; plain centred fallback when not the empty state.

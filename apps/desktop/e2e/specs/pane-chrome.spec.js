@@ -41,7 +41,9 @@ async function invoke(cmd, args) {
 }
 
 async function waitForMount() {
-  await $('button[aria-label="Hide sidebar"]').waitForExist({ timeout: 15_000 });
+  await $('button[aria-label="Hide sidebar"], button[aria-label="Show sidebar"]').waitForExist({
+    timeout: 15_000,
+  });
 }
 
 async function openSearchInFocusedPane() {

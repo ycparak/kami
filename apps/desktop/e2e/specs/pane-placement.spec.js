@@ -3,6 +3,7 @@ import { writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { closeAllTabs } from "../helpers/workspace.js";
 
 const E2E_WORKSPACE = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
 const SESSION_FILE = resolve(homedir(), "Library/Application Support/com.kami.e2e/sessions.json");
@@ -41,7 +42,9 @@ async function invoke(cmd, args) {
 }
 
 async function waitForMount() {
-  await $('button[aria-label="Hide sidebar"]').waitForExist({ timeout: 15_000 });
+  await $('button[aria-label="Hide sidebar"], button[aria-label="Show sidebar"]').waitForExist({
+    timeout: 15_000,
+  });
 }
 
 async function tabTitles() {
@@ -50,17 +53,10 @@ async function tabTitles() {
   );
 }
 
-async function activeTabTitle() {
-  return browser.execute(() => {
-    const active = Array.from(document.querySelectorAll("[data-tab-id]")).find((el) =>
-      el.querySelector('[role="button"]')?.className.includes("tab-active-bg"),
-    );
-    return active?.textContent.trim() ?? null;
-  });
-}
-
-async function clickSidebarFile(suffix) {
-  const row = await $(`[data-tree-path$="${suffix}"]`);
+// Match the workspace-root file exactly: a `$=` suffix match on "/README.md" also matches
+// apps/desktop/e2e/README.md, which opens a third pane and breaks the one-pane assertions.
+async function clickSidebarFile(relative) {
+  const row = await $(`[data-tree-path="${E2E_WORKSPACE}${relative}"]`);
   await row.waitForExist({ timeout: 10_000 });
   await row.click();
   await browser.pause(1_200);
@@ -69,6 +65,9 @@ async function clickSidebarFile(suffix) {
 describe("pane placement", function () {
   before(async function () {
     await waitForMount();
+    // Earlier specs leave their tabs behind, and the app rewrites sessions.json on its own,
+    // so seedSession alone cannot get back to a single pane -- close them first.
+    await closeAllTabs();
     await invoke("reset_setting", { key: "appearance.column-layout", scope: "global" });
     await invoke("reset_setting", { key: "appearance.pane-width", scope: "global" });
     seedSession(["README.md"]);

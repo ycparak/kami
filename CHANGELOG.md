@@ -2,6 +2,28 @@
 
 User-visible changes, newest first.
 
+## Unreleased
+
+### Changed
+
+- **Empty-state wallpaper cycles daily.** The full-bleed photograph behind an
+  empty workspace now changes once a day instead of being re-randomized every
+  time the empty state appears — it advances through all nine wallpapers in
+  order, one per calendar day.
+
+### Fixed
+
+- **Command palette keyboard navigation.** Arrow keys now move the highlight
+  one item per press, every press. Previously, as soon as the highlight
+  reached the edge of the list, scrolling the next item into view made the
+  selection jump back to whatever row the mouse pointer happened to be resting
+  over — so holding ↑ crawled through the list a few items at a time and the
+  list scrolled in fits and starts. Hovering with the mouse still selects, but
+  only when the mouse actually moves. The palette also now starts on the first
+  item every time it opens, instead of resuming wherever the last session left
+  off, and the selection no longer strands itself on a result that a new query
+  has removed.
+
 ## 0.1.0 - 2026-08-25
 
 ### Added

@@ -2,12 +2,12 @@ import { useState } from "react";
 import { useOpenCommandPalette } from "@/hooks/use-command-palette";
 import { useIsEmptyWorkspace } from "@/hooks/use-empty-workspace";
 import { EMPTY_STATE_ACTIONS } from "@/components/empty-state-actions";
-import { randomWallpaper } from "./wallpapers";
+import { dailyWallpaper } from "./wallpapers";
 
 export function NewTabPage() {
   const openCommandPalette = useOpenCommandPalette();
   const isEmptyWorkspace = useIsEmptyWorkspace();
-  const [wallpaper] = useState(randomWallpaper);
+  const [wallpaper] = useState(dailyWallpaper);
 
   if (!isEmptyWorkspace) {
     return (

@@ -17,6 +17,14 @@ export interface Wallpaper {
   scrim: string;
 }
 
+// Set once at startup from `StartupState.dev_wallpaper` (see use-open-drop.ts), which is
+// only ever populated in debug builds via the `--wallpaper <id>` dev launch flag.
+let devWallpaperOverride: string | null = null;
+
+export function setDevWallpaperOverride(id: string | null): void {
+  devWallpaperOverride = id;
+}
+
 function toWallpaper({ id, scrimTop }: (typeof WALLPAPERS)[number]): Wallpaper {
   return {
     src: `/wallpapers/${id}.webp`,
@@ -24,6 +32,16 @@ function toWallpaper({ id, scrimTop }: (typeof WALLPAPERS)[number]): Wallpaper {
   };
 }
 
-export function randomWallpaper(): Wallpaper {
-  return toWallpaper(WALLPAPERS[Math.floor(Math.random() * WALLPAPERS.length)]!);
+// Stable within a local calendar day, advances at local midnight.
+function localDayIndex(date: Date): number {
+  return Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86_400_000);
+}
+
+export function dailyWallpaper(date: Date = new Date()): Wallpaper {
+  if (devWallpaperOverride) {
+    const override = WALLPAPERS.find((w) => w.id === devWallpaperOverride);
+    if (override) return toWallpaper(override);
+  }
+  const index = localDayIndex(date) % WALLPAPERS.length;
+  return toWallpaper(WALLPAPERS[index]!);
 }

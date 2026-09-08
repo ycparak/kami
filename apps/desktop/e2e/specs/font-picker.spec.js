@@ -28,7 +28,9 @@ describe("Settings font selects", function () {
         .catch((error) => done(error && error.message ? error.message : String(error)));
     }, INITIAL_STACK);
     await browser.refresh();
-    await $('button[aria-label="Hide sidebar"]').waitForExist({ timeout: 15_000 });
+    await $('button[aria-label="Hide sidebar"], button[aria-label="Show sidebar"]').waitForExist({
+      timeout: 15_000,
+    });
   });
 
   it("opens settings via the command palette", async function () {
