@@ -22,6 +22,8 @@ use std::path::{Path, PathBuf};
 #[cfg(target_os = "macos")]
 use tauri::menu::MenuItem;
 use tauri::menu::{MenuBuilder, MenuItemBuilder, PredefinedMenuItem, SubmenuBuilder};
+#[cfg(debug_assertions)]
+use tauri::LogicalSize;
 #[cfg(target_os = "macos")]
 use tauri::RunEvent;
 use tauri::{DragDropEvent, Emitter, Manager, PhysicalPosition, WebviewWindow, WindowEvent};
@@ -171,6 +173,23 @@ fn build_secondary_window(app: &tauri::AppHandle, label: String) -> Result<(), A
     position_new_window(app, &window);
 
     Ok(())
+}
+
+/// Reads `--w <width> --h <height>` from the process args, passed through via
+/// `vp run desktop#dev --w <width> --h <height>` (forwarded to the app binary by
+/// `tauri dev -- -- ...`). Dev-only, so it's compiled out of release builds.
+#[cfg(debug_assertions)]
+fn dev_window_size_override() -> Option<LogicalSize<f64>> {
+    let args: Vec<String> = std::env::args().collect();
+    let value_after = |flag: &str| -> Option<f64> {
+        args.iter()
+            .position(|a| a == flag)
+            .and_then(|i| args.get(i + 1))
+            .and_then(|v| v.parse::<f64>().ok())
+    };
+    let width = value_after("--w")?;
+    let height = value_after("--h")?;
+    Some(LogicalSize::new(width, height))
 }
 
 fn position_new_window(app: &tauri::AppHandle, window: &WebviewWindow) {
@@ -451,6 +470,10 @@ pub fn run() {
 
             if let Some(window) = app.get_webview_window(MAIN_WINDOW_LABEL) {
                 attach_window_handlers(app.handle(), &window);
+                #[cfg(debug_assertions)]
+                if let Some(size) = dev_window_size_override() {
+                    let _ = window.set_size(size);
+                }
             }
 
             Ok(())

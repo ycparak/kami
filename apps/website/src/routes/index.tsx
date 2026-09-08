@@ -3,29 +3,27 @@ import { Carousel, type CarouselSlide } from "../components/Carousel";
 import { AppleGlyph } from "../components/Icons";
 
 const DEMO_TABS = [
-  "Writing",
-  "Panes",
+  "Fast & Private",
+  "Column Support",
   "Search",
+  "Extended Markdown",
   "Frontmatter",
-  "Math & Diagrams",
-  "Tables",
-  "Images",
   "Workspaces",
+  "Customisable",
 ];
 
 const DEMO_DESCRIPTIONS = [
-  "All your documents live in your computer",
+  "All your documents live on your computer",
   "Open notes side by side in one scrollable row",
   "Find any note in your workspace instantly",
+  "Mermaid charts, LaTeX, tables and HTML rendered beautifully",
   "YAML metadata support built-in",
-  "Mermaid charts and LaTeX render as you type",
-  "Write tables in markdown, read them formatted",
-  "Drop an image in and it is saved alongside",
-  "Snappy switch between multiple workspaces",
+  "Switch between multiple workspaces",
+  "Customise the look and feel of your workspace",
 ];
 
 const SLIDES: CarouselSlide[] = DEMO_TABS.map((tab, index) => ({
-  src: "/videos/00.mp4",
+  src: "/videos/01.mp4",
   tab,
   description: DEMO_DESCRIPTIONS[index],
 }));

@@ -252,7 +252,7 @@ a:hover {
   width: 100%;
   max-width: 1024px;
   margin: 0 auto;
-  border-radius: 8px;
+  border-radius: 14px;
   box-shadow:
     0 0 30px 10px #1b35411f,
     0 0 2px 2px #0e111700;
