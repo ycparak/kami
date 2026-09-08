@@ -19,6 +19,8 @@ export type CarouselSlide = {
 type CarouselProps = {
   slides: CarouselSlide[];
   label?: string;
+  /** Delays the reveal sequence until this is true, even once media has loaded. */
+  readyToReveal?: boolean;
 };
 
 const DRAG_DISTANCE_TOLERANCE = 0.3;
@@ -58,11 +60,17 @@ type CarouselDom = {
   viewport: HTMLDivElement | null;
   track: HTMLDivElement | null;
   tabs: HTMLDivElement | null;
+  descriptionsContainer: HTMLDivElement | null;
   slides: (HTMLDivElement | null)[];
   tabButtons: (HTMLButtonElement | null)[];
   descriptions: (HTMLParagraphElement | null)[];
   videos: (HTMLVideoElement | null)[];
+  images: (HTMLImageElement | null)[];
 };
+
+const REVEAL_TAB_STAGGER = 0.035;
+const REVEAL_TAB_DURATION = 0.35;
+const REVEAL_FADE_DURATION = 0.4;
 
 type EngineDeps = {
   dom: RefObject<CarouselDom>;
@@ -568,7 +576,11 @@ function createCarouselEngine({ dom, slideCount, setActiveIndex, setDragging }: 
   };
 }
 
-export function Carousel({ slides, label = "Kami product demos" }: CarouselProps) {
+export function Carousel({
+  slides,
+  label = "Kami product demos",
+  readyToReveal = true,
+}: CarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const slideId = useId();
@@ -577,12 +589,18 @@ export function Carousel({ slides, label = "Kami product demos" }: CarouselProps
     viewport: null,
     track: null,
     tabs: null,
+    descriptionsContainer: null,
     slides: [],
     tabButtons: [],
     descriptions: [],
     videos: [],
+    images: [],
   });
   const slideCount = useRef(slides.length);
+  const [mediaReady, setMediaReady] = useState(false);
+  const revealedRef = useRef(false);
+  const activeIndexRef = useRef(activeIndex);
+  activeIndexRef.current = activeIndex;
 
   const engineRef = useRef<ReturnType<typeof createCarouselEngine> | null>(null);
   engineRef.current ??= createCarouselEngine({
@@ -598,6 +616,117 @@ export function Carousel({ slides, label = "Kami product demos" }: CarouselProps
   }, [slides.length]);
 
   useIsomorphicLayoutEffect(() => engine.mount(), [engine]);
+
+  useEffect(() => {
+    let cancelled = false;
+    let pending = slides.length;
+    const cleanups: Array<() => void> = [];
+
+    function settle() {
+      pending -= 1;
+      if (pending <= 0 && !cancelled) setMediaReady(true);
+    }
+
+    if (pending === 0) {
+      setMediaReady(true);
+    } else {
+      slides.forEach((slide, index) => {
+        if (slide.type === "image") {
+          const img = dom.current.images[index];
+          if (!img || img.complete) {
+            settle();
+            return;
+          }
+          img.addEventListener("load", settle);
+          img.addEventListener("error", settle);
+          cleanups.push(() => {
+            img.removeEventListener("load", settle);
+            img.removeEventListener("error", settle);
+          });
+        } else {
+          const video = dom.current.videos[index];
+          if (!video || video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+            settle();
+            return;
+          }
+          video.addEventListener("loadeddata", settle);
+          video.addEventListener("error", settle);
+          cleanups.push(() => {
+            video.removeEventListener("loadeddata", settle);
+            video.removeEventListener("error", settle);
+          });
+        }
+      });
+    }
+
+    return () => {
+      cancelled = true;
+      for (const cleanup of cleanups) cleanup();
+    };
+  }, [slides]);
+
+  useEffect(() => {
+    if (!mediaReady || !readyToReveal || revealedRef.current) return;
+    revealedRef.current = true;
+
+    const { viewport, tabs, tabButtons, descriptionsContainer } = dom.current;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const revealIndex = activeIndexRef.current;
+    const tabEntries = tabButtons
+      .map((button, index) =>
+        button ? { button, targetOpacity: index === revealIndex ? 1 : INACTIVE_TAB_OPACITY } : null,
+      )
+      .filter(
+        (entry): entry is { button: HTMLButtonElement; targetOpacity: number } => entry !== null,
+      );
+
+    if (reduceMotion) {
+      if (viewport) viewport.style.opacity = "1";
+      if (tabs) tabs.style.opacity = "1";
+      if (descriptionsContainer) descriptionsContainer.style.opacity = "1";
+      return;
+    }
+
+    for (const { button } of tabEntries) button.style.opacity = "0";
+
+    // Sequenced with setTimeout rather than chained animation promises: a
+    // backgrounded tab can stall requestAnimationFrame-driven animations
+    // indefinitely, which would otherwise leave later steps (and the tabs/
+    // description they reveal) stuck invisible.
+    const timers: number[] = [];
+
+    if (viewport) animate(viewport, { opacity: [0, 1] }, { duration: REVEAL_FADE_DURATION });
+
+    timers.push(
+      window.setTimeout(() => {
+        if (tabs) tabs.style.opacity = "1";
+        tabEntries.forEach(({ button, targetOpacity }, index) => {
+          animate(
+            button,
+            { opacity: [0, targetOpacity] },
+            { duration: REVEAL_TAB_DURATION, delay: index * REVEAL_TAB_STAGGER },
+          );
+        });
+
+        const tabsDuration = REVEAL_TAB_DURATION + (tabEntries.length - 1) * REVEAL_TAB_STAGGER;
+        timers.push(
+          window.setTimeout(() => {
+            if (descriptionsContainer) {
+              animate(
+                descriptionsContainer,
+                { opacity: [0, 1] },
+                { duration: REVEAL_FADE_DURATION },
+              );
+            }
+          }, tabsDuration * 1000),
+        );
+      }, REVEAL_FADE_DURATION * 1000),
+    );
+
+    return () => {
+      for (const timer of timers) window.clearTimeout(timer);
+    };
+  }, [mediaReady, readyToReveal]);
 
   useEffect(() => {
     dom.current.videos.forEach((video, index) => {
@@ -651,7 +780,14 @@ export function Carousel({ slides, label = "Kami product demos" }: CarouselProps
               aria-hidden={index !== activeIndex}
             >
               {slide.type === "image" ? (
-                <img src={slide.src} alt={slide.tab} draggable={false} />
+                <img
+                  ref={(el) => {
+                    dom.current.images[index] = el;
+                  }}
+                  src={slide.src}
+                  alt={slide.tab}
+                  draggable={false}
+                />
               ) : (
                 <video
                   ref={(el) => {
@@ -704,7 +840,12 @@ export function Carousel({ slides, label = "Kami product demos" }: CarouselProps
         </div>
       </div>
 
-      <div className="carousel-descriptions">
+      <div
+        ref={(el) => {
+          dom.current.descriptionsContainer = el;
+        }}
+        className="carousel-descriptions"
+      >
         {slides.map((slide, index) => (
           <p
             key={index}
