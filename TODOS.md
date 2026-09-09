@@ -27,6 +27,10 @@
 
 ## Done
 
+- **README images on GitHub.** The app icon and screenshot now use GitHub's
+  current `/refs/heads/master/` raw-content URLs instead of the legacy
+  `/raw/master/` route, which was returning broken images for the README.
+
 - **Daily wallpaper cycling + `--wallpaper` dev flag.** The empty-state
   wallpaper (`wallpapers.ts`) no longer re-rolls at random on every mount —
   `dailyWallpaper()` indexes into the registry by local calendar day, so it

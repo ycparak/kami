@@ -13,6 +13,8 @@ User-visible changes, newest first.
 
 ### Fixed
 
+- **README images on GitHub.** Updated the README assets to use GitHub's current
+  raw-content URL form so the app icon and screenshot render reliably.
 - **Command palette keyboard navigation.** Arrow keys now move the highlight
   one item per press, every press. Previously, as soon as the highlight
   reached the edge of the list, scrolling the next item into view made the
