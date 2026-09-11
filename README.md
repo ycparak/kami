@@ -6,7 +6,7 @@
 
 **Markdown, without the noise.**
 
-Kami is a fast, lightweight and local markdown editor built for people who value privacy and speed. It works offline, weighs under 10mb, is open source and completely free.
+Kami is a fast, lightweight and local markdown editor built for people who value privacy and speed. It works offline, weighs under 15mb, is open source and completely free.
 
 ![Kami](https://raw.githubusercontent.com/ycparak/kami/refs/heads/master/assets/screenshot.png)
 
